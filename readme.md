@@ -2,7 +2,9 @@ Plugin Météo pour S.A.R.A.H
 ================================================================================
 
 Le plugin nécessite tout d'abord SpeechReco (similaire à Scribe).
+
 Que vous pouvez trouver ici: https://github.com/tilleul/Sarah.dictation.v2
+
 Vous pouvez toujours modifier le plugin pour l'adapter au système habitutel pour le Garbage ;)
 
 Prérequis
