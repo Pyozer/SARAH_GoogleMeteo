@@ -1,4 +1,4 @@
-Plugin Météo pour S.A.R.A.H
+﻿Plugin Météo pour S.A.R.A.H
 ================================================================================
 
 Le plugin nécessite tout d'abord SpeechReco (similaire à Scribe).
