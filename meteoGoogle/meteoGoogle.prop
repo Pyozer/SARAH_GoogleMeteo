@@ -2,7 +2,7 @@
 	"modules" : { 
 		"meteoGoogle"  : {
 			"description": "Permet de récupérer la météo, à une date précise et/ou à un lieu précis via google",
-			"version": "1.0",
+			"version": "1.1",
 			"auteur": "Jean-Charles Moussé"
 		}
 	}

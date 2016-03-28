@@ -57,7 +57,7 @@ function meteo(dateandcity, callback) {
 	var search = "quelle est la météo " + dateandcity;
 	var url = "https://www.google.fr/search?q=" + encodeURI(search) + "&btnG=Rechercher&espv=2&biw=1920&bih=955&gbv=1";
 	console.log('Url Request: ' + url);
-	
+
 	var request = require('request');
 	var cheerio = require('cheerio');
 
@@ -74,16 +74,23 @@ function meteo(dateandcity, callback) {
 	    }
         var $ = cheerio.load(html);
 
-        var temperature = $('.g .e span.wob_t').first().text().replace('°C', " degrés");
-        console.log("Température: " + temperature);
+        var temperature = $('.g .e span.wob_t').first().text().trim().replace('°C', " degrés");
 
-        var infos = $("#search .g .e tr:nth-child(3) td").text();
-        console.log("Informations: " + infos);
+        var infos = $("#search .g .e tr:nth-child(3) td").text().trim();
 
-        var ville = $('.g .e h3').text().replace('Météo à ', '');
-        console.log("Localisation: " + ville);
+        var ville = $('.g .e h3').text().trim().replace('Météo à ', '');
 
-	    callback({'tts': "La météo " + dateandcity + " est " + infos + " avec une température de " + temperature });
+        if(temperature == "" || infos == "" || ville == "") {
+        	console.log("Impossible de récupérer les informations météo sur Google");
+
+        	callback({'tts': "Désolé, je n'ai pas réussi à récupérer les informations" });
+        } else {
+        	console.log("Température: " + temperature);
+        	console.log("Informations: " + infos);
+        	console.log("Localisation: " + ville);
+
+        	callback({'tts': "La météo " + dateandcity + " est " + infos + " avec une température de " + temperature });
+        }
 	    return;
     });
 }
