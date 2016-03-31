@@ -5,12 +5,12 @@ var cnt = 0;
 var cpt_initial;
 
 exports.init = function () {
-    info('[ meteoGoogle ] is initializing ...');
+    info('[ GoogleMeteo ] is initializing ...');
 }
 
 exports.action = function(data, callback){
 
-	config = Config.modules.meteoGoogle;
+	config = Config.modules.GoogleMeteo;
 
 	cpt_initial = SARAH.context.SpeechReco.compteur;
 	cnt = 0;
@@ -28,9 +28,9 @@ function checkSpeechReco(SARAH, callback, data) {
 		console.log ("Search: " + search);
 
 		if(data.dateask == 'true') {
-			var rgxp = /Jarvis (la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température) (.+)/i;
+			var rgxp = /(la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température) (.+)/i;
 		} else {
-			var rgxp = /Jarvis (la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température)/i;
+			var rgxp = /(la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température)/i;
 		}
 
 		var match = search.match(rgxp);
@@ -55,7 +55,7 @@ function checkSpeechReco(SARAH, callback, data) {
 
 function meteo(dateandcity, callback) {
 	var search = "quelle est la météo " + dateandcity;
-	var url = "https://www.google.fr/search?q=" + encodeURI(search) + "&btnG=Rechercher&espv=2&biw=1920&bih=955&gbv=1";
+	var url = "https://www.google.fr/search?q=" + encodeURI(search) + "&btnG=Rechercher&gbv=1";
 	console.log('Url Request: ' + url);
 
 	var request = require('request');
@@ -69,7 +69,7 @@ function meteo(dateandcity, callback) {
 
     	if (error || response.statusCode != 200) {
 			clearInterval(token);
-			callback({'tts': "L'action a échoué"});
+			callback({'tts': "L'action a échoué. Erreur " + response.statusCode });
 			return;
 	    }
         var $ = cheerio.load(html);

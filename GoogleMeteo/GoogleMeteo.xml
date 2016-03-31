@@ -1,5 +1,5 @@
-<grammar version="1.0" xml:lang="fr-FR" mode="voice" root="rulemeteoGoogle" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
-	<rule id="rulemeteoGoogle" scope="public">
+<grammar version="1.0" xml:lang="fr-FR" mode="voice" root="ruleGoogleMeteo" xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+	<rule id="ruleGoogleMeteo" scope="public">
 		<example>Jarvis quelle est la météo demain à La Flèche</example>
 		<tag>out.action=new Object(); </tag>
 
@@ -44,6 +44,6 @@
 			<ruleref special="GARBAGE" />
 		</item>
 		
-		<tag>out.action._attributes.uri="http://127.0.0.1:8080/sarah/meteoGoogle";</tag>
+		<tag>out.action._attributes.uri="http://127.0.0.1:8080/sarah/GoogleMeteo";</tag>
 	</rule>
 </grammar>
