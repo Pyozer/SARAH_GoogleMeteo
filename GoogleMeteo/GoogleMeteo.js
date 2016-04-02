@@ -85,8 +85,10 @@ function meteo(dateandcity, callback) {
 	var cheerio = require('cheerio');
 
 	var options = {
+		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36',
 		'Accept-Charset': 'utf-8'
 	};
+	
 	request({ 'uri': url, 'headers': options }, function(error, response, html) {
 
     	if (error || response.statusCode != 200) {
