@@ -1,8 +1,9 @@
+var ScribeSpeak;
 var token;
-var interval = 100;		// msec
-var repeat = 50;		// n x interval = timeout ... 50 x 100 = 5000 msec de timeout ...
-var cnt = 0;
-var cpt_initial;
+var TIME_ELAPSED;
+var FULL_RECO;
+var PARTIAL_RECO;
+var TIMEOUT_SEC = 10000;
 
 exports.init = function () {
     info('[ GoogleMeteo ] is initializing ...');
@@ -10,48 +11,70 @@ exports.init = function () {
 
 exports.action = function(data, callback){
 
-	config = Config.modules.GoogleMeteo;
+	ScribeSpeak = SARAH.ScribeSpeak;
 
-	cpt_initial = SARAH.context.SpeechReco.compteur;
-	cnt = 0;
-	token = setInterval(function() {
-		checkSpeechReco(SARAH, callback, data)
-	}, interval);
+	FULL_RECO = SARAH.context.scribe.FULL_RECO;
+	PARTIAL_RECO = SARAH.context.scribe.PARTIAL_RECO;
+	TIME_ELAPSED = SARAH.context.scribe.TIME_ELAPSED;
+
+	SARAH.context.scribe.activePlugin('GoogleMeteo');
+
+	var util = require('util');
+	console.log("GoogleMeteo call log: " + util.inspect(data, { showHidden: true, depth: null }));
+
+	SARAH.context.scribe.hook = function(event) {
+		checkScribe(event, data.action, callback, data); 
+	};
+	
+	token = setTimeout(function(){
+		SARAH.context.scribe.hook("TIME_ELAPSED");
+	}, TIMEOUT_SEC);
 }
 
-function checkSpeechReco(SARAH, callback, data) {
-	var new_cpt = SARAH.context.SpeechReco.compteur;
+function checkScribe(event, action, callback, data) {
 
-	if (new_cpt != cpt_initial) {
+	if (event == FULL_RECO) {
+		clearTimeout(token);
+		SARAH.context.scribe.hook = undefined;
+		// aurait-on trouvé ?
+		decodeScribe(SARAH.context.scribe.lastReco, callback, data);
 
-		var search = SARAH.context.SpeechReco.lastReco;
-		console.log ("Search: " + search);
-
-		if(data.dateask == 'true') {
-			var rgxp = /(la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température) (.+)/i;
+	} else if(event == TIME_ELAPSED) {
+		// timeout !
+		SARAH.context.scribe.hook = undefined;
+		// aurait-on compris autre chose ?
+		if (SARAH.context.scribe.lastPartialConfidence >= 0.7 && SARAH.context.scribe.compteurPartial > SARAH.context.scribe.compteur) {
+			decodeScribe(SARAH.context.scribe.lastPartial, callback, data);
 		} else {
-			var rgxp = /(la météo|quelle est la météo|tu peux me donner la météo|peux tu me donner la météo|quelle est le temps|quelle temps fait il|il fait quelle temps|quelle est la température)/i;
+			SARAH.context.scribe.activePlugin('Aucun (GoogleMeteo)');
+			ScribeSpeak("Désolé je n'ai pas compris. Merci de réessayer.", true);
+			return callback();
 		}
-
-		var match = search.match(rgxp);
-		if (!match || match.length <= 1){
-			console.log("FAIL");
-			clearInterval(token);
-			return callback({'tts': "Je ne comprends pas"});
-		}
-
-		search = (data.dateask == 'true') ? match[2] : "";
-		clearInterval(token);
-		console.log("Cnt: " + cnt);
-		return meteo(search, callback);
 	} else {
-		cnt+= interval;
-		if (cnt > (interval * repeat)) {
-			clearInterval(token);
-			return callback ({'tts': "Google Chrome n'a pas répondu assez vite"});
-		}
+		// pas traité
 	}
 }
+
+function decodeScribe(search, callback, data) {
+
+	console.log ("Search: " + search);
+	if(data.dateask == 'true') {
+		var rgxp = /(météo|temps|temps fait il|température|température fait il) (.+)/i;
+	} else {
+		var rgxp = /(météo|temps|temps fait il|température|température fait il)/i;
+	}
+
+	var match = search.match(rgxp);
+	if (!match || match.length <= 1){
+		SARAH.context.scribe.activePlugin('Aucun (GoogleMeteo)');
+		ScribeSpeak("Désolé je n'ai pas compris.", true);
+		return callback();
+	}
+	search = (data.dateask == 'true') ? match[2] : "";
+
+	return meteo(search, callback);
+}
+
 
 function meteo(dateandcity, callback) {
 	var search = "quelle est la météo " + dateandcity;
@@ -62,14 +85,13 @@ function meteo(dateandcity, callback) {
 	var cheerio = require('cheerio');
 
 	var options = {
-		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36',
 		'Accept-Charset': 'utf-8'
 	};
 	request({ 'uri': url, 'headers': options }, function(error, response, html) {
 
     	if (error || response.statusCode != 200) {
-			clearInterval(token);
-			callback({'tts': "L'action a échoué. Erreur " + response.statusCode });
+			ScribeSpeak("L'action a échoué. Erreur " + response.statusCode);
+			callback();
 			return;
 	    }
         var $ = cheerio.load(html);
@@ -82,14 +104,14 @@ function meteo(dateandcity, callback) {
 
         if(temperature == "" || infos == "" || ville == "") {
         	console.log("Impossible de récupérer les informations météo sur Google");
-
-        	callback({'tts': "Désolé, je n'ai pas réussi à récupérer les informations" });
+        	ScribeSpeak("Désolé, je n'ai pas réussi à récupérer les informations");
+        	callback();
         } else {
         	console.log("Température: " + temperature);
         	console.log("Informations: " + infos);
         	console.log("Localisation: " + ville);
-
-        	callback({'tts': "La météo " + dateandcity + " est " + infos + " avec une température de " + temperature });
+        	ScribeSpeak("La météo " + dateandcity + " est " + infos + " avec une température de " + temperature);
+        	callback();
         }
 	    return;
     });
