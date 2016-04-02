@@ -1,6 +1,8 @@
 ﻿Plugin Météo pour S.A.R.A.H
 ===========================
 
+Plugin pour avoir la météo locale ou celle d'une ville. Avec possibilité d'une date.
+
 Le plugin nécessite tout d'abord Scribe .
 
 Que vous pouvez trouver ici: https://github.com/tilleul/Sarah.Scribe
