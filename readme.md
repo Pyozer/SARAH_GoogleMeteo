@@ -3,6 +3,8 @@
 
 Plugin pour avoir la météo locale ou celle d'une ville. Avec possibilité d'une date.
 
+**EDIT :** Je me suis rendu compte que Google renvoi tout le temps la météo du jour, même si on demande celle du lendemain par exemple. Donc il n'y a pas vraiment la possibilité de la date :/
+
 Le plugin nécessite tout d'abord Scribe .
 
 Que vous pouvez trouver ici: https://github.com/tilleul/Sarah.Scribe
