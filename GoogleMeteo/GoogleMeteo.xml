@@ -4,7 +4,7 @@
 		<tag>out.action=new Object(); </tag>
 
 		<item>Jarvis</item>
-    
+
 		<one-of>
 			<item>la météo</item>
 			<item>quelle est la météo</item>
