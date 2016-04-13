@@ -47,8 +47,8 @@ function checkScribe(event, action, callback, data) {
 			decodeScribe(SARAH.context.scribe.lastPartial, callback, data);
 		} else {
 			SARAH.context.scribe.activePlugin('Aucun (GoogleMeteo)');
-			ScribeSpeak("Désolé je n'ai pas compris. Merci de réessayer.", true);
-			return callback();
+			//ScribeSpeak("Désolé je n'ai pas compris. Merci de réessayer.", true);
+			return callback({ 'tts': "Désolé je n'ai pas compris. Merci de réessayer." });
 		}
 	} else {
 		// pas traité
@@ -67,8 +67,8 @@ function decodeScribe(search, callback, data) {
 	var match = search.match(rgxp);
 	if (!match || match.length <= 1){
 		SARAH.context.scribe.activePlugin('Aucun (GoogleMeteo)');
-		ScribeSpeak("Désolé je n'ai pas compris.", true);
-		return callback();
+		//ScribeSpeak("Désolé je n'ai pas compris.", true);
+		return callback({ 'tts': "Désolé je n'ai pas compris." });
 	}
 	search = (data.dateask == 'true') ? match[2] : "";
 
@@ -92,8 +92,8 @@ function meteo(dateandcity, callback) {
 	request({ 'uri': url, 'headers': options }, function(error, response, html) {
 
     	if (error || response.statusCode != 200) {
-			ScribeSpeak("L'action a échoué. Erreur " + response.statusCode);
-			callback();
+			//ScribeSpeak("L'action a échoué. Erreur " + response.statusCode);
+			callback({ 'tts': "L'action a échoué. Erreur " + response.statusCode });
 			return;
 	    }
         var $ = cheerio.load(html);
@@ -106,14 +106,14 @@ function meteo(dateandcity, callback) {
 
         if(temperature == "" || infos == "" || ville == "") {
         	console.log("Impossible de récupérer les informations météo sur Google");
-        	ScribeSpeak("Désolé, je n'ai pas réussi à récupérer les informations");
-        	callback();
+        	//ScribeSpeak("Désolé, je n'ai pas réussi à récupérer les informations");
+        	callback({ 'tts': "Désolé, je n'ai pas réussi à récupérer d'informations" });
         } else {
         	console.log("Température: " + temperature);
         	console.log("Informations: " + infos);
         	console.log("Localisation: " + ville);
-        	ScribeSpeak("La météo " + dateandcity + " est " + infos + " avec une température de " + temperature);
-        	callback();
+        	//ScribeSpeak("La météo " + dateandcity + " est " + infos + " avec une température de " + temperature);
+        	callback({ 'tts': "La météo " + dateandcity + " est " + infos + " avec une température de " + temperature });
         }
 	    return;
     });
